@@ -12,23 +12,20 @@ import os
 load_dotenv()  # Загружаем переменные из .env файла
 TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 
-# Простые фразы с переводами
+# Простые ругательства с переводами
 phrases_with_translations = [
-    {"phrase": "You're wrong!", "translation": "Ты не прав!"},
-    {"phrase": "I don't think so.", "translation": "Я так не думаю."},
-    {"phrase": "That's not true!", "translation": "Это не правда!"},
-    {"phrase": "I disagree.", "translation": "Я не согласен."},
-    {"phrase": "Are you serious?", "translation": "Ты серьёзно?"},
-    {"phrase": "No way!", "translation": "Ни за что!"},
-    {"phrase": "That's ridiculous!", "translation": "Это смешно!"},
-    {"phrase": "Stop it!", "translation": "Прекрати!"}
+    {"phrase": "You're such an idiot!", "translation": "Ты такой идиот!"},
+    {"phrase": "Shut up!", "translation": "Заткнись!"},
+    {"phrase": "You're annoying!", "translation": "Ты раздражаешь!"},
+    {"phrase": "What a moron!", "translation": "Какой дурак!"},
+    {"phrase": "Don't be stupid!", "translation": "Не будь дураком!"},
+    {"phrase": "Go away!", "translation": "Убирайся!"},
+    {"phrase": "That's just pathetic!", "translation": "Это просто жалко!"},
+    {"phrase": "Get a life!", "translation": "Займись делом!"}
 ]
 
 # Функция для обработки команды /start с отправкой изображения
 async def start(update: Update, context: CallbackContext) -> None:
-    # # Отправляем приветственное сообщение
-    # await update.message.reply_text('Ah shit, here we go again')
-
     # Отправляем картинку с подписью
     with open("images/ah_shit_here_we_go_again.jpg", "rb") as image:
         await context.bot.send_photo(
@@ -37,7 +34,7 @@ async def start(update: Update, context: CallbackContext) -> None:
             caption="Ah shit, here we go again"  # Подпись к изображению
         )
 
-# Функция для обработки сообщений с переводами
+# Функция для обработки сообщений с ругательствами
 async def handle_message(update: Update, context: CallbackContext) -> None:
     selected_phrase = random.choice(phrases_with_translations)  # Случайная фраза с переводом
     bot_reply = f"{selected_phrase['phrase']}\n(Перевод: {selected_phrase['translation']})"
