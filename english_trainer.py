@@ -2,6 +2,9 @@ import nest_asyncio
 nest_asyncio.apply()
 
 import asyncio
+import os
+import sys
+import re  # Импортируем модуль re
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext
 from telegram import InputFile
@@ -68,10 +71,16 @@ async def start(update: Update, context: CallbackContext) -> None:
             caption=f"Ah shit, here we go again, {user_name}!"
         )
 
+# Функция для обработки команды /restart
+async def restart(update: Update, context: CallbackContext) -> None:
+    await update.message.reply_text("Перезапуск бота...")
+    os.execv(sys.executable, ['python'] + sys.argv)
 
+# Функция для экранирования символов Markdown
 def escape_markdown(text: str) -> str:
     return re.sub(r'([_.*[\]()~`>#+\-=|{}.!])', r'\\\1', text)
 
+# Функция для обработки сообщений
 async def handle_message(update: Update, context: CallbackContext) -> None:
     user_message = update.message.text.strip().lower()
 
@@ -99,13 +108,15 @@ async def handle_message(update: Update, context: CallbackContext) -> None:
         bot_reply = f"{escape_markdown(selected_response['phrase'])}\n\n||Перевод: {escape_markdown(selected_response['translation'])}||"
         await update.message.reply_text(bot_reply, parse_mode="MarkdownV2")
 
-
 # Основной код для запуска бота
 async def main() -> None:
     application = Application.builder().token(TOKEN).build()
 
     # Обработчик для команды /start
     application.add_handler(CommandHandler("start", start))
+
+    # Обработчик для команды /restart
+    application.add_handler(CommandHandler("restart", restart))
 
     # Обработчик для всех текстовых сообщений
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
