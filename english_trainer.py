@@ -64,12 +64,19 @@ async def start(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_chat.id
     user_name = update.effective_user.first_name  # Получаем имя пользователя
     user_names[user_id] = user_name  # Сохраняем имя пользователя
+
+    # Отправляем изображение
     with open("images/ah_shit_here_we_go_again.jpg", "rb") as image:
         await context.bot.send_photo(
             chat_id=update.effective_chat.id,
             photo=InputFile(image),
             caption=f"Ah shit, here we go again, {user_name}!"
         )
+
+    # Отправляем случайное приветственное сообщение
+    selected_greeting = random.choice(street_phrases["greetings"])  # Случайное приветствие
+    bot_reply = f"{escape_markdown(selected_greeting['phrase'])}\n\n||Перевод: {escape_markdown(selected_greeting['translation'])}||"
+    await update.message.reply_text(bot_reply, parse_mode="MarkdownV2")
 
 # Функция для обработки команды /restart
 async def restart(update: Update, context: CallbackContext) -> None:
