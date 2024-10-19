@@ -38,7 +38,6 @@ greetings = ["hello", "hi", "hey", "yo", "heya"]
 
 # Функция для обработки команды /start с отправкой изображения
 async def start(update: Update, context: CallbackContext) -> None:
-    # Отправляем картинку с подписью
     with open("images/ah_shit_here_we_go_again.jpg", "rb") as image:
         await context.bot.send_photo(
             chat_id=update.effective_chat.id,
@@ -53,17 +52,24 @@ async def handle_message(update: Update, context: CallbackContext) -> None:
     # Проверяем, если пользователь здоровается
     if any(greet in user_message for greet in greetings):
         selected_greeting = random.choice(greeting_responses)  # Случайное приветствие
-        bot_reply = f"{selected_greeting['phrase']}\n(Перевод: {selected_greeting['translation']})"
+        bot_reply = f"{selected_greeting['phrase']}"
         await update.message.reply_text(bot_reply)
+
+    # Проверяем, если пользователь спрашивает "what?"
+    elif user_message == "what?":
+        # Отправляем перевод последней фразы под спойлером
+        selected_greeting = random.choice(greeting_responses)
+        bot_reply = f"||Перевод: {selected_greeting['translation']}||"  # Текст под спойлером
+        await update.message.reply_text(bot_reply, parse_mode="MarkdownV2")
+
     else:
         # Если сообщение не распознано как приветствие, бот будет ругаться
         selected_phrase = random.choice(phrases_with_translations)  # Случайная фраза с переводом
-        bot_reply = f"{selected_phrase['phrase']}\n(Перевод: {selected_phrase['translation']})"
+        bot_reply = f"{selected_phrase['phrase']}"
         await update.message.reply_text(bot_reply)
 
 # Основной код для запуска бота
 async def main() -> None:
-    # Создаем объект приложения
     application = Application.builder().token(TOKEN).build()
 
     # Обработчик для команды /start
