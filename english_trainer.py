@@ -8,6 +8,7 @@ from telegram import InputFile
 import random
 from dotenv import load_dotenv
 import os
+import re
 
 load_dotenv()  # Загружаем переменные из .env файла
 TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
@@ -67,44 +68,37 @@ async def start(update: Update, context: CallbackContext) -> None:
             caption=f"Ah shit, here we go again, {user_name}!"
         )
 
-# Функция для обработки сообщений
+
+def escape_markdown(text: str) -> str:
+    return re.sub(r'([_.*[\]()~`>#+\-=|{}.!])', r'\\\1', text)
+
 async def handle_message(update: Update, context: CallbackContext) -> None:
     user_message = update.message.text.strip().lower()
-    user_id = update.effective_chat.id
 
-    # Проверяем, если пользователь прислал приветствие
+    # Проверяем приветствие пользователя
     if any(greet in user_message for greet in greetings):
-        selected_greeting = random.choice(street_phrases["greetings"])
-        bot_reply = f"{selected_greeting['phrase']}\n\n||Перевод: {selected_greeting['translation']}||"
+        selected_greeting = random.choice(street_phrases["greetings"])  # Случайное приветствие
+        bot_reply = f"{escape_markdown(selected_greeting['phrase'])}\n\n||Перевод: {escape_markdown(selected_greeting['translation'])}||"
         await update.message.reply_text(bot_reply, parse_mode="MarkdownV2")
 
-    # Проверяем, если пользователь делится своими чувствами
-    elif "happy" in user_message or "great" in user_message:
-        selected_feeling = random.choice(street_phrases["feelings"]["happy"])
-        bot_reply = f"{selected_feeling['phrase']}\n\n||Перевод: {selected_feeling['translation']}||"
-        await update.message.reply_text(bot_reply, parse_mode="MarkdownV2")
-
-    elif "sad" in user_message or "bad" in user_message:
-        selected_feeling = random.choice(street_phrases["feelings"]["sad"])
-        bot_reply = f"{selected_feeling['phrase']}\n\n||Перевод: {selected_feeling['translation']}||"
-        await update.message.reply_text(bot_reply, parse_mode="MarkdownV2")
-
-    elif "angry" in user_message or "mad" in user_message:
-        selected_feeling = random.choice(street_phrases["feelings"]["angry"])
-        bot_reply = f"{selected_feeling['phrase']}\n\n||Перевод: {selected_feeling['translation']}||"
+    # Проверяем, если пользователь спрашивает что-то вроде "how are you?"
+    elif "how are you" in user_message or "how's it going" in user_message:
+        selected_response = random.choice(street_phrases["responses"])  # Случайный ответ
+        bot_reply = f"{escape_markdown(selected_response['phrase'])}\n\n||Перевод: {escape_markdown(selected_response['translation'])}||"
         await update.message.reply_text(bot_reply, parse_mode="MarkdownV2")
 
     # Проверяем, если пользователь пытается кого-то оскорбить
     elif "stupid" in user_message or "idiot" in user_message:
-        selected_insult = random.choice(street_phrases["insults"])
-        bot_reply = f"{selected_insult['phrase']}\n\n||Перевод: {selected_insult['translation']}||"
+        selected_insult = random.choice(street_phrases["insults"])  # Случайное оскорбление
+        bot_reply = f"{escape_markdown(selected_insult['phrase'])}\n\n||Перевод: {escape_markdown(selected_insult['translation'])}||"
         await update.message.reply_text(bot_reply, parse_mode="MarkdownV2")
 
     else:
         # Если сообщение не распознано, бот будет отвечать случайной фразой
-        selected_response = random.choice(street_phrases["responses"])
-        bot_reply = f"{selected_response['phrase']}\n\n||Перевод: {selected_response['translation']}||"
+        selected_response = random.choice(street_phrases["responses"])  # Случайный ответ
+        bot_reply = f"{escape_markdown(selected_response['phrase'])}\n\n||Перевод: {escape_markdown(selected_response['translation'])}||"
         await update.message.reply_text(bot_reply, parse_mode="MarkdownV2")
+
 
 # Основной код для запуска бота
 async def main() -> None:
