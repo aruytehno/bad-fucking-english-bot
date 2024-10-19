@@ -36,17 +36,18 @@ async def start(update: Update, context: CallbackContext) -> None:
 
 # Функция для обработки сообщений
 async def handle_message(update: Update, context: CallbackContext) -> None:
-    user_message = update.message.text.strip()
+    user_message = update.message.text.strip().lower()
 
-    # Проверяем, является ли сообщение командой
-    if not user_message.startswith('/'):
-        # Если сообщение не команда, ругаемся
+    # Проверяем на приветственные фразы
+    greetings = ['hello', 'hi', 'hey', 'привет', 'здравствуйте', 'здорово']
+
+    if any(greet in user_message for greet in greetings):
+        await update.message.reply_text("Hey, what's up man")
+    else:
+        # Если сообщение не приветственное, ругаемся
         selected_phrase = random.choice(phrases_with_translations)  # Случайная фраза с переводом
         bot_reply = f"{selected_phrase['phrase']}\n(Перевод: {selected_phrase['translation']})"
         await update.message.reply_text(bot_reply)
-    else:
-        # Если это команда, можно добавить логику для обработки команд, если нужно
-        await update.message.reply_text("Команда не распознана.")  # Вы можете адаптировать это сообщение
 
 # Основной код для запуска бота
 async def main() -> None:
