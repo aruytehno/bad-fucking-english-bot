@@ -24,6 +24,18 @@ phrases_with_translations = [
     {"phrase": "Get a life!", "translation": "Займись делом!"}
 ]
 
+# Приветственные фразы с переводами
+greeting_responses = [
+    {"phrase": "Hey, what's up man", "translation": "Эй, как дела, чувак?"},
+    {"phrase": "Yo! What's going on?", "translation": "Йо! Что происходит?"},
+    {"phrase": "Heya! How's it going?", "translation": "Привет! Как дела?"},
+    {"phrase": "Sup?", "translation": "Как ты?"},
+    {"phrase": "Yo! How's life?", "translation": "Йо! Как жизнь?"}
+]
+
+# Возможные приветственные входящие сообщения
+greetings = ["hello", "hi", "hey", "yo", "heya"]
+
 # Функция для обработки команды /start с отправкой изображения
 async def start(update: Update, context: CallbackContext) -> None:
     # Отправляем картинку с подписью
@@ -31,20 +43,20 @@ async def start(update: Update, context: CallbackContext) -> None:
         await context.bot.send_photo(
             chat_id=update.effective_chat.id,
             photo=InputFile(image),
-            caption="Ah shit, here we go again"  # Подпись к изображению
+            caption="Ah shit, here we go again"
         )
 
 # Функция для обработки сообщений
 async def handle_message(update: Update, context: CallbackContext) -> None:
     user_message = update.message.text.strip().lower()
 
-    # Проверяем на приветственные фразы
-    greetings = ['hello', 'hi', 'hey', 'привет', 'здравствуйте', 'здорово']
-
+    # Проверяем, если пользователь здоровается
     if any(greet in user_message for greet in greetings):
-        await update.message.reply_text("Hey, what's up man")
+        selected_greeting = random.choice(greeting_responses)  # Случайное приветствие
+        bot_reply = f"{selected_greeting['phrase']}\n(Перевод: {selected_greeting['translation']})"
+        await update.message.reply_text(bot_reply)
     else:
-        # Если сообщение не приветственное, ругаемся
+        # Если сообщение не распознано как приветствие, бот будет ругаться
         selected_phrase = random.choice(phrases_with_translations)  # Случайная фраза с переводом
         bot_reply = f"{selected_phrase['phrase']}\n(Перевод: {selected_phrase['translation']})"
         await update.message.reply_text(bot_reply)
