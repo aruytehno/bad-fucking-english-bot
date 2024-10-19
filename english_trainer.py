@@ -12,31 +12,35 @@ import os
 load_dotenv()  # Загружаем переменные из .env файла
 TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 
-# Простые ругательства с переводами
-phrases_with_translations = [
-    {"phrase": "You're such an idiot!", "translation": "Ты такой идиот!"},
-    {"phrase": "Shut up!", "translation": "Заткнись!"},
-    {"phrase": "You're annoying!", "translation": "Ты раздражаешь!"},
-    {"phrase": "What a moron!", "translation": "Какой дурак!"},
-    {"phrase": "Don't be stupid!", "translation": "Не будь дураком!"},
-    {"phrase": "Go away!", "translation": "Убирайся!"},
-    {"phrase": "That's just pathetic!", "translation": "Это просто жалко!"},
-    {"phrase": "Get a life!", "translation": "Займись делом!"}
-]
-
-# Приветственные фразы с переводами
-greeting_responses = [
-    {"phrase": "Hey, what's up man", "translation": "Эй, как дела, чувак?"},
-    {"phrase": "Yo! What's going on?", "translation": "Йо! Что происходит?"},
-    {"phrase": "Heya! How's it going?", "translation": "Привет! Как дела?"},
-    {"phrase": "Sup?", "translation": "Как ты?"},
-    {"phrase": "Yo! How's life?", "translation": "Йо! Как жизнь?"}
-]
+# Уличные фразы и оскорбления
+street_phrases = {
+    "greetings": [
+        {"phrase": "Yo, what it do, fam?", "translation": "Йо, как дела, брат?"},
+        {"phrase": "Sup, homie?", "translation": "Как жизнь, чувак?"},
+        {"phrase": "What’s poppin’ dawg?", "translation": "Чё как, братан?"},
+        {"phrase": "Ayy! What's good?", "translation": "Эй! Как оно?"},
+        {"phrase": "Yo yo yo, how's life?", "translation": "Йо, йо, йо, как жизнь?"}
+    ],
+    "responses": [
+        {"phrase": "Just chillin', bro.", "translation": "Просто отдыхаю, брат."},
+        {"phrase": "Ain't nothin', just hangin'.", "translation": "Да ничего, просто зависаю."},
+        {"phrase": "Livin’ the dream, you feel me?", "translation": "Живу по полной, понимаешь?"},
+        {"phrase": "Tryna make it out here, dog.", "translation": "Просто выживаю тут, братан."},
+        {"phrase": "You know how it is.", "translation": "Ты же знаешь, как оно бывает."}
+    ],
+    "insults": [
+        {"phrase": "Yo, you trippin', fool!", "translation": "Ты чё, гонишь, дурак?"},
+        {"phrase": "Man, you wildin'!", "translation": "Чувак, ты совсем рехнулся!"},
+        {"phrase": "Don’t make me come over there, bro.", "translation": "Не заставляй меня приходить туда, брат."},
+        {"phrase": "You ain't bout that life!", "translation": "Ты не из тех, кто живет этой жизнью!"},
+        {"phrase": "Better back up, fool!", "translation": "Лучше отвали, дурак!"}
+    ]
+}
 
 # Возможные приветственные входящие сообщения
-greetings = ["hello", "hi", "hey", "yo", "heya"]
+greetings = ["hello", "hi", "hey", "yo", "heya", "sup", "what's up"]
 
-# Функция для обработки команды /start с отправкой изображения
+# Функция для обработки команды /start с приветствием
 async def start(update: Update, context: CallbackContext) -> None:
     with open("images/ah_shit_here_we_go_again.jpg", "rb") as image:
         await context.bot.send_photo(
@@ -49,24 +53,29 @@ async def start(update: Update, context: CallbackContext) -> None:
 async def handle_message(update: Update, context: CallbackContext) -> None:
     user_message = update.message.text.strip().lower()
 
-    # Проверяем, если пользователь здоровается
+    # Проверяем приветствие пользователя
     if any(greet in user_message for greet in greetings):
-        selected_greeting = random.choice(greeting_responses)  # Случайное приветствие
-        bot_reply = f"{selected_greeting['phrase']}"
-        await update.message.reply_text(bot_reply)
+        selected_greeting = random.choice(street_phrases["greetings"])  # Случайное приветствие
+        bot_reply = f"{selected_greeting['phrase']}\n\n||Перевод: {selected_greeting['translation']}||"
+        await update.message.reply_text(bot_reply, parse_mode="MarkdownV2")
 
-    # Проверяем, если пользователь спрашивает "what?"
-    elif user_message == "what?":
-        # Отправляем перевод последней фразы под спойлером
-        selected_greeting = random.choice(greeting_responses)
-        bot_reply = f"||Перевод: {selected_greeting['translation']}||"  # Текст под спойлером
+    # Проверяем, если пользователь спрашивает что-то вроде "how are you?"
+    elif "how are you" in user_message or "how's it going" in user_message:
+        selected_response = random.choice(street_phrases["responses"])  # Случайный ответ
+        bot_reply = f"{selected_response['phrase']}\n\n||Перевод: {selected_response['translation']}||"
+        await update.message.reply_text(bot_reply, parse_mode="MarkdownV2")
+
+    # Проверяем, если пользователь пытается кого-то оскорбить
+    elif "stupid" in user_message or "idiot" in user_message:
+        selected_insult = random.choice(street_phrases["insults"])  # Случайное оскорбление
+        bot_reply = f"{selected_insult['phrase']}\n\n||Перевод: {selected_insult['translation']}||"
         await update.message.reply_text(bot_reply, parse_mode="MarkdownV2")
 
     else:
-        # Если сообщение не распознано как приветствие, бот будет ругаться
-        selected_phrase = random.choice(phrases_with_translations)  # Случайная фраза с переводом
-        bot_reply = f"{selected_phrase['phrase']}"
-        await update.message.reply_text(bot_reply)
+        # Если сообщение не распознано, бот будет отвечать случайной фразой
+        selected_response = random.choice(street_phrases["responses"])  # Случайный ответ
+        bot_reply = f"{selected_response['phrase']}\n\n||Перевод: {selected_response['translation']}||"
+        await update.message.reply_text(bot_reply, parse_mode="MarkdownV2")
 
 # Основной код для запуска бота
 async def main() -> None:
